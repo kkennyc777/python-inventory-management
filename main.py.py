@@ -5,6 +5,11 @@ class Inventory:
     def add_product(self, product):
         self.products.append(product)
 
+    def delete_product(self, name):
+        result = self.search_product(name)
+        if result is not None:
+            self.products.remove(result)
+
     def show_products(self):
         for product in self.products:
             product.show_info()
@@ -14,6 +19,21 @@ class Inventory:
             if product.name == name:
                 return product
         print("Product not found")
+
+    def update_product(self, name, price):
+        result = self.search_product(name)
+        if result is not None:
+            result.price = price
+
+    def low_stock(self, stock):
+        low_stock_products = []
+        for product in self.products:
+            if product.stock <= stock:
+                low_stock_products.append(product)
+        for product in low_stock_products:
+            product.show_info()
+        if not low_stock_products:
+            print("No coincidences found.")
             
 
 
@@ -43,10 +63,13 @@ inventory = Inventory()
 mouse = Product("Razer Mouse", "Mouse", 20, 15)
 keyboard = Product("Logitech Keyboard", "Keyboard", 50, 8)
 monitor = Product("Samsung Monitor", "Monitor", 200, 4)
+headphones = Product("Sony Headphones", "Headphones", 80, 2)
 
 inventory.add_product(mouse)
 inventory.add_product(keyboard)
 inventory.add_product(monitor)
+inventory.add_product(headphones)
 
-result = inventory.search_product("Razer Mouse")
-result.show_info()
+inventory.low_stock(5)
+
+
