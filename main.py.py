@@ -1,3 +1,5 @@
+import json
+
 class Inventory:
     def __init__(self):
         self.products = []
@@ -5,6 +7,13 @@ class Inventory:
     def add_product(self, product):
         self.products.append(product)
 
+    def product_to_list(self):
+        product_information = []
+        for product in self.products:
+            data = product.to_dict()
+            product_information.append(data)
+        return product_information
+        
     def delete_product(self, name):
         result = self.search_product(name)
         if result is not None:
@@ -31,10 +40,8 @@ class Inventory:
             if product.stock <= stock:
                 low_stock_products.append(product)
         for product in low_stock_products:
-            product.show_info()
-        if not low_stock_products:
-            print("No coincidences found.")
-            
+            return low_stock_products
+
 
 
 
@@ -58,6 +65,14 @@ class Product:
         else:
             print("Not enough stock")
 
+    def to_dict(self):
+        product_to_dict = {"Name" : self.name,
+         "Category" : self.category,
+         "Price" : self.price,
+         "Stock" : self.stock
+        }
+        return product_to_dict
+
 inventory = Inventory()
 
 mouse = Product("Razer Mouse", "Mouse", 20, 15)
@@ -70,6 +85,9 @@ inventory.add_product(keyboard)
 inventory.add_product(monitor)
 inventory.add_product(headphones)
 
-inventory.low_stock(5)
+data = inventory.product_to_list()
 
+json_data = json.dumps(data, indent=4)
 
+print(json_data)
+print(type(json_data))
