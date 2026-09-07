@@ -42,7 +42,21 @@ class Inventory:
         for product in low_stock_products:
             return low_stock_products
 
+    def load_products(self):
+        with open("products.json", "r") as file:
+            data = json.load(file)
+        for product in data:
+            name = product["Name"]
+            category = product["Category"]
+            price = product["Price"]
+            stock = product["Stock"]
+            json_product = Product(name, category, price, stock)
+            self.add_product(json_product)
 
+    def save_products(self):
+        data = self.product_to_list()
+        with open("products.json", "w") as file:
+            json.dump(data, file, indent=4)
 
 
 class Product:
@@ -74,20 +88,15 @@ class Product:
         return product_to_dict
 
 inventory = Inventory()
+inventory.load_products()
 
-mouse = Product("Razer Mouse", "Mouse", 20, 15)
-keyboard = Product("Logitech Keyboard", "Keyboard", 50, 8)
-monitor = Product("Samsung Monitor", "Monitor", 200, 4)
-headphones = Product("Sony Headphones", "Headphones", 80, 2)
+webcam = Product("UGREEN", "Accesories", 5, 10 )
+inventory.add_product(webcam)
 
-inventory.add_product(mouse)
-inventory.add_product(keyboard)
-inventory.add_product(monitor)
-inventory.add_product(headphones)
+inventory.show_products()
+inventory.save_products()
+inventory.show_products()
 
-data = inventory.product_to_list()
 
-json_data = json.dumps(data, indent=4)
 
-print(json_data)
-print(type(json_data))
+

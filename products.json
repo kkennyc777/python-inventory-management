@@ -1,0 +1,32 @@
+[
+    {
+        "Name": "Razer Mouse",
+        "Category": "Mouse",
+        "Price": 20,
+        "Stock": 15
+    },
+    {
+        "Name": "Logitech Keyboard",
+        "Category": "Keyboard",
+        "Price": 50,
+        "Stock": 8
+    },
+    {
+        "Name": "Samsung Monitor",
+        "Category": "Monitor",
+        "Price": 200,
+        "Stock": 4
+    },
+    {
+        "Name": "Sony Headphones",
+        "Category": "Headphones",
+        "Price": 80,
+        "Stock": 2
+    },
+    {
+        "Name": "UGREEN",
+        "Category": "Accesories",
+        "Price": 5,
+        "Stock": 10
+    }
+]
