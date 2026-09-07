@@ -1,10 +1,8 @@
-inventory.add_product(mouse)
-inventory.add_product(keyboard)
-inventory.add_product(monitor)
-inventory.add_product(headphones)
+name = data[1]["Name"]
+category = data [1]["Category"]
+price = data[1]["Price"]
+stock = data [1]["Stock"]
 
-result = inventory.low_stock(5)
-if not result:
-    print("No coincidences found.")
-for product in result:
-    product.show_info()
+json_product = Product(name, category, price, stock)
+
+json_product.show_info()

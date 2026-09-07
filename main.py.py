@@ -43,15 +43,23 @@ class Inventory:
             return low_stock_products
 
     def load_products(self):
-        with open("products.json", "r") as file:
-            data = json.load(file)
-        for product in data:
-            name = product["Name"]
-            category = product["Category"]
-            price = product["Price"]
-            stock = product["Stock"]
-            json_product = Product(name, category, price, stock)
-            self.add_product(json_product)
+        try:
+            with open("products.json", "r") as file:
+                data = json.load(file)
+            self.products = []
+            for product in data:
+                name = product["Name"]
+                category = product["Category"]
+                price = product["Price"]
+                stock = product["Stock"]
+                json_product = Product(name, category, price, stock)
+                self.add_product(json_product)
+        except FileNotFoundError:
+            print("No saved inventory found")
+        except json.JSONDecodeError:
+            print("Invalid inventory data.")
+        except KeyError as error:
+            print(f"Missing product field: {error.args[0]}")
 
     def save_products(self):
         data = self.product_to_list()
