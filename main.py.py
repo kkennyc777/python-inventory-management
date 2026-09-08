@@ -15,7 +15,7 @@ class Inventory:
         return product_information
         
     def delete_product(self, name):
-        result = self.search_product(name)
+        result = self.search_product_by_name(name)
         if result is not None:
             self.products.remove(result)
 
@@ -23,24 +23,35 @@ class Inventory:
         for product in self.products:
             product.show_info()
 
-    def search_product(self, name):
+    def search_product_by_name(self, name):
         for product in self.products:
             if product.name == name:
                 return product
         print("Product not found")
 
+    def search_product_by_category(self, category):
+        product_by_category = []
+        for product in self.products:
+            if product.category == category:
+                product_by_category.append(product)
+        if not product_by_category: 
+            print("Category not found")
+        return product_by_category
+
+
     def update_product(self, name, price):
-        result = self.search_product(name)
+        result = self.search_product_by_name(name)
         if result is not None:
-            result.price = price
+            result.update_price(price)
 
     def low_stock(self, stock):
         low_stock_products = []
         for product in self.products:
             if product.stock <= stock:
                 low_stock_products.append(product)
-        for product in low_stock_products:
-            return low_stock_products
+        if not low_stock_products:
+            print("No products found")
+        return low_stock_products
 
     def load_products(self):
         try:
@@ -74,8 +85,8 @@ class Product:
     def __init__(self, name, category, price, stock):
         if not isinstance(price, (int, float)):
             raise ValueError("Price must be a number.")
-        elif price < 0:
-            raise ValueError("Price cannot be negative.")
+        elif price <= 0:
+            raise ValueError("Price must be greater than zero.")
         if not isinstance(stock, int):
             raise ValueError("Stock must be an integer number.")
         elif stock < 0:
@@ -100,18 +111,25 @@ class Product:
         if not isinstance(stock, int):
             raise ValueError("Stock must be a number.")
         elif stock <= 0:
-            raise ValueError("Stock cannot be negative.")
+            raise ValueError("Stock amount must be greater than zero.")
         self.stock += stock
 
     def remove_stock(self, stock):
         if not isinstance(stock, int):
-            raise ValueError("Stock must be a number.")
+            raise ValueError("Stock must be an integer number.")
         elif stock <= 0:
-            raise ValueError("Stock cannot be negative.")
+            raise ValueError("Stock must be greater than zero.")
         if self.stock >= stock:
             self.stock -= stock
         else:
             print("Not enough stock")
+
+    def update_price(self, price):
+        if not isinstance(price, (int,float)):
+            raise ValueError("Price must be a number.")
+        elif price <= 0:
+            raise ValueError("Price must be greater than zero.")
+        self.price = price
 
     def to_dict(self):
         product_to_dict = {"Name" : self.name,
@@ -143,7 +161,7 @@ def add_products_option():
         return True
     print ("The following product will be added:")
     product_to_add.show_info()
-    confirmation = input ("Please make sure the information is correct. Type 1 to confirm and save or type 2 to start over: ")
+    confirmation = input ("Please make sure the information is correct. Type 1 to confirm and add the product or type 2 to start over: ")
     if confirmation == "1":
         inventory.add_product(product_to_add)
         return False
@@ -152,6 +170,74 @@ def add_products_option():
     else:
         print("Please choose a correct option: 1 or 2.")
         return True
+
+def search_product_option():
+    print("""===== SEARCH MENU =====
+1. Search by name
+2. Search by category
+3. Return to main menu""")
+    search_selection = input ("Please choose an option: ")
+    if search_selection == "1":
+        print("Search by name selected.")
+        search_product = input("Please type here to search your product: ")
+        product = inventory.search_product_by_name(search_product)
+        if product is not None:
+            product.show_info()
+        return True
+    elif search_selection == "2":
+        print("Search by category selected.")
+        search_product = input("Please type here to search your product: ")
+        category_list = inventory.search_product_by_category(search_product)
+        for product in category_list:
+            product.show_info()
+        return True
+    elif search_selection == "3":
+        return False
+    else:
+        print("Please choose a correct option: 1, 2 or 3.") 
+        return True   
+
+def update_product_option():
+    name = input("Please type the product name you want to update: ")
+    price = input("Please type the new price amount: ")
+    try:
+        price = float(price)
+    except ValueError:
+        print("Price must be a number.")
+        return True
+    product = inventory.search_product_by_name(name)
+    if product is not None:
+        print("Product before changes:")
+        product.show_info()
+        try:
+            inventory.update_product(name, price)
+            print("Product after changes:")
+            product.show_info()
+        except ValueError as error:
+            print(error)
+
+def delete_product_option():
+    name = input("Please type the name of the product to be removed: ")
+    product = inventory.search_product_by_name(name)
+    if product is None:
+        return True
+    product.show_info()
+    while True:
+        confirm_selection = input("""Are you sure you want to delete the follwing product? Please choose an option:
+1. Confirm and delete product
+2. Search again
+3. Return to the main menu""")
+        if confirm_selection == "1":
+            inventory.delete_product(name)
+            return False
+        elif confirm_selection == "2":
+            return True
+        elif confirm_selection == "3":
+            return False
+        else:
+            print("Please choose a correct option from 1 to 3: ")
+    
+
 
 inventory = Inventory()
 inventory.load_products()
@@ -168,8 +254,22 @@ while program_running:
 8. Exit""")
     option = input("Welcome.\nPlease choose an option: ")
     if option == "1":
+        print("You have selected -Add product-")
         add_product_running = True
         while add_product_running:
             add_product_running = add_products_option()
     elif option == "2":
+        print("You have selected -View product-")
         inventory.show_products()
+    elif option == "3":
+        print("You have selected -Search product-")
+        search_product_running = True
+        while search_product_running:
+            search_product_running = search_product_option()
+    elif option == "4":
+        print("You have selected -Update product-")
+        update_product_option()
+    elif option == "5":
+        delete_product_running = True
+        while delete_product_running:
+            delete_product_running = delete_product_option()
