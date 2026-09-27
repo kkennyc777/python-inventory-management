@@ -27,7 +27,7 @@ class Inventory:
         for product in self.products:
             if product.name == name:
                 return product
-        print("Product not found")
+        
 
     def search_product_by_category(self, category):
         product_by_category = []
@@ -183,6 +183,8 @@ def search_product_option():
         product = inventory.search_product_by_name(search_product)
         if product is not None:
             product.show_info()
+        elif product is None:
+            print("Product not found")
         return True
     elif search_selection == "2":
         print("Search by category selected.")
@@ -236,7 +238,17 @@ def delete_product_option():
             return False
         else:
             print("Please choose a correct option from 1 to 3: ")
-    
+
+def low_stock_option():
+    stock = input("Please choose the amout of stock: ")
+    try:
+        stock = int(stock)
+        result = inventory.low_stock(stock)
+        for product in result:
+            product.show_info()
+    except ValueError:
+        print("Stock must be an integer number.")
+
 
 
 inventory = Inventory()
@@ -273,3 +285,10 @@ while program_running:
         delete_product_running = True
         while delete_product_running:
             delete_product_running = delete_product_option()
+    elif option == "6":
+        print("You have selected -View low-stock products-")
+        low_stock_option()
+    elif option == "7":
+        inventory.save_products()
+    elif option == "8":
+        program_running = False
