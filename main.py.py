@@ -14,10 +14,8 @@ class Inventory:
             product_information.append(data)
         return product_information
         
-    def delete_product(self, name):
-        result = self.search_product_by_name(name)
-        if result is not None:
-            self.products.remove(result)
+    def delete_product(self, product):
+            self.products.remove(product)
 
     def show_products(self):
         for product in self.products:
@@ -34,8 +32,6 @@ class Inventory:
         for product in self.products:
             if product.category == category:
                 product_by_category.append(product)
-        if not product_by_category: 
-            print("Category not found")
         return product_by_category
 
 
@@ -49,8 +45,6 @@ class Inventory:
         for product in self.products:
             if product.stock <= stock:
                 low_stock_products.append(product)
-        if not low_stock_products:
-            print("No products found")
         return low_stock_products
 
     def load_products(self):
@@ -183,15 +177,18 @@ def search_product_option():
         product = inventory.search_product_by_name(search_product)
         if product is not None:
             product.show_info()
-        elif product is None:
+        else:
             print("Product not found")
         return True
     elif search_selection == "2":
         print("Search by category selected.")
         search_product = input("Please type here to search your product: ")
         category_list = inventory.search_product_by_category(search_product)
-        for product in category_list:
-            product.show_info()
+        if not category_list: 
+            print("Category not found")
+        else: 
+            for product in category_list:
+                product.show_info()
         return True
     elif search_selection == "3":
         return False
@@ -217,11 +214,14 @@ def update_product_option():
             product.show_info()
         except ValueError as error:
             print(error)
+    else:
+        print("Product not found.")
 
 def delete_product_option():
     name = input("Please type the name of the product to be removed: ")
     product = inventory.search_product_by_name(name)
     if product is None:
+        print ("Product not found.")
         return True
     product.show_info()
     while True:
@@ -240,12 +240,15 @@ def delete_product_option():
             print("Please choose a correct option from 1 to 3: ")
 
 def low_stock_option():
-    stock = input("Please choose the amout of stock: ")
+    stock = input("Please choose the amount of stock: ")
     try:
         stock = int(stock)
         result = inventory.low_stock(stock)
-        for product in result:
-            product.show_info()
+        if not result:
+            print(f"There are no products with stock less than or equal to {stock}.")
+        else:
+            for product in result:
+                product.show_info()
     except ValueError:
         print("Stock must be an integer number.")
 
