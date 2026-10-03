@@ -34,12 +34,6 @@ class Inventory:
                 product_by_category.append(product)
         return product_by_category
 
-
-    def update_product(self, name, price):
-        result = self.search_product_by_name(name)
-        if result is not None:
-            result.update_price(price)
-
     def low_stock(self, stock):
         low_stock_products = []
         for product in self.products:
@@ -198,24 +192,23 @@ def search_product_option():
 
 def update_product_option():
     name = input("Please type the product name you want to update: ")
-    price = input("Please type the new price amount: ")
-    try:
-        price = float(price)
-    except ValueError:
-        print("Price must be a number.")
-        return True
     product = inventory.search_product_by_name(name)
-    if product is not None:
+    if product is None:
+        print("Product not found.")
+    else:
+        price = input("Please type the new price amount: ")
+        try:
+            price = float(price)
+        except ValueError:
+            print("Price must be a number.")
         print("Product before changes:")
         product.show_info()
         try:
-            inventory.update_product(name, price)
+            product.update_price(price)
             print("Product after changes:")
             product.show_info()
         except ValueError as error:
             print(error)
-    else:
-        print("Product not found.")
 
 def delete_product_option():
     name = input("Please type the name of the product to be removed: ")
@@ -230,7 +223,7 @@ def delete_product_option():
 2. Search again
 3. Return to the main menu""")
         if confirm_selection == "1":
-            inventory.delete_product(name)
+            inventory.delete_product(product)
             return False
         elif confirm_selection == "2":
             return True
