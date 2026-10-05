@@ -24,9 +24,9 @@
         "Stock": 2
     },
     {
-        "Name": "UGREEN",
-        "Category": "Accesories",
-        "Price": 5,
-        "Stock": 10
+        "Name": "Logitech Mouse",
+        "Category": "Mouse",
+        "Price": 6.0,
+        "Stock": 15
     }
 ]

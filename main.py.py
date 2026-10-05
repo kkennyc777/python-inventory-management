@@ -1,238 +1,129 @@
-import json
+from product import Product
+from inventory import Inventory
 
-class Inventory:
-    def __init__(self):
-        self.products = []
-
-    def add_product(self, product):
-        self.products.append(product)
-
-    def product_to_list(self):
-        product_information = []
-        for product in self.products:
-            data = product.to_dict()
-            product_information.append(data)
-        return product_information
-        
-    def delete_product(self, product):
-            self.products.remove(product)
-
-    def show_products(self):
-        for product in self.products:
-            product.show_info()
-
-    def search_product_by_name(self, name):
-        for product in self.products:
-            if product.name == name:
-                return product
-        
-
-    def search_product_by_category(self, category):
-        product_by_category = []
-        for product in self.products:
-            if product.category == category:
-                product_by_category.append(product)
-        return product_by_category
-
-    def low_stock(self, stock):
-        low_stock_products = []
-        for product in self.products:
-            if product.stock <= stock:
-                low_stock_products.append(product)
-        return low_stock_products
-
-    def load_products(self):
+def add_products_option(inventory):
+    print("You have selected -Add product-")
+    while True: 
+        name = input ("Please enter the name of the product to be added: ")
+        category = input ("Please enter the category of the product to be added: ")
+        price = input ("Please enter the price of the product to be added: ")
         try:
-            with open("products.json", "r") as file:
-                data = json.load(file)
-            self.products = []
-            for product in data:
-                name = product["Name"]
-                category = product["Category"]
-                price = product["Price"]
-                stock = product["Stock"]
-                json_product = Product(name, category, price, stock)
-                self.add_product(json_product)
-        except FileNotFoundError:
-            print("No saved inventory found")
-        except json.JSONDecodeError:
-            print("Invalid inventory data.")
-        except KeyError as error:
-            print(f"Missing product field: {error.args[0]}")
+            price = float(price)
+        except ValueError:
+            print("Price must be a number.")
+            continue
+        stock = input ("Please enter the stock of the product to be added: ")
+        try:
+            stock = int(stock)
+        except ValueError:
+            print("Stock must be an integer number")
+            continue
+        try:
+            product_to_add = Product(name, category, price, stock)
         except ValueError as error:
             print(error)
+            continue
+        print ("The following product will be added:")
+        product_to_add.show_info()
+        confirmation_loop = True
+        while confirmation_loop:
+            confirmation = input ("Please make sure the information is correct. Type -yes- to confirm and add the product or type -no- to edit the information: ")
+            if confirmation == "yes":
+                inventory.add_product(product_to_add)
+                return
+            elif confirmation == "no":
+                print("Let's start over.")
+                confirmation_loop = False
+            else:
+                print("Please choose a correct option: yes or no.")
+                continue
 
-    def save_products(self):
-        data = self.product_to_list()
-        with open("products.json", "w") as file:
-            json.dump(data, file, indent=4)
+def show_products_option(inventory):
+    print("You have selected -View product-")
+    inventory.show_products()
 
-
-class Product:
-
-    def __init__(self, name, category, price, stock):
-        if not isinstance(price, (int, float)):
-            raise ValueError("Price must be a number.")
-        elif price <= 0:
-            raise ValueError("Price must be greater than zero.")
-        if not isinstance(stock, int):
-            raise ValueError("Stock must be an integer number.")
-        elif stock < 0:
-            raise ValueError("Stock cannot be negative.")
-        if not isinstance(name, str):
-            raise ValueError("Name must be a string.")
-        elif not name.strip():
-            raise ValueError("Name field cannot be empty.")
-        if not isinstance(category, str):
-            raise ValueError("Category must be a string.")
-        elif not category.strip():
-            raise ValueError("Category field cannot be empty.")
-        self.name = name.strip()
-        self.category = category.strip()
-        self.price = price
-        self.stock = stock
-
-    def show_info(self):
-        print(f"=== PRODUCT ===\nName: {self.name}\nCategory: {self.category}\nPrice: {self.price}\nStock: {self.stock}")
-
-    def add_stock(self, stock):
-        if not isinstance(stock, int):
-            raise ValueError("Stock must be a number.")
-        elif stock <= 0:
-            raise ValueError("Stock amount must be greater than zero.")
-        self.stock += stock
-
-    def remove_stock(self, stock):
-        if not isinstance(stock, int):
-            raise ValueError("Stock must be an integer number.")
-        elif stock <= 0:
-            raise ValueError("Stock must be greater than zero.")
-        if self.stock >= stock:
-            self.stock -= stock
-        else:
-            print("Not enough stock")
-
-    def update_price(self, price):
-        if not isinstance(price, (int,float)):
-            raise ValueError("Price must be a number.")
-        elif price <= 0:
-            raise ValueError("Price must be greater than zero.")
-        self.price = price
-
-    def to_dict(self):
-        product_to_dict = {"Name" : self.name,
-         "Category" : self.category,
-         "Price" : self.price,
-         "Stock" : self.stock
-        }
-        return product_to_dict
-
-def add_products_option():
-    name = input ("Please enter the name of the product to be added: ")
-    category = input ("Please enter the category of the product to be added: ")
-    price = input ("Please enter the price of the product to be added: ")
-    try:
-        price = float(price)
-    except ValueError:
-        print("Price must be a number.")
-        return True
-    stock = input ("Please enter the stock of the product to be added: ")
-    try:
-        stock = int(stock)
-    except ValueError:
-        print("Stock must be an integer number")
-        return True
-    try:
-        product_to_add = Product(name, category, price, stock)
-    except ValueError as error:
-        print(error)
-        return True
-    print ("The following product will be added:")
-    product_to_add.show_info()
-    confirmation = input ("Please make sure the information is correct. Type 1 to confirm and add the product or type 2 to start over: ")
-    if confirmation == "1":
-        inventory.add_product(product_to_add)
-        return False
-    elif confirmation == "2":
-        return True
-    else:
-        print("Please choose a correct option: 1 or 2.")
-        return True
-
-def search_product_option():
-    print("""===== SEARCH MENU =====
+def search_product_option(inventory):
+    print("You have selected -Search Product-")
+    while True:
+        print("""===== SEARCH MENU =====
 1. Search by name
 2. Search by category
 3. Return to main menu""")
-    search_selection = input ("Please choose an option: ")
-    if search_selection == "1":
-        print("Search by name selected.")
-        search_product = input("Please type here to search your product: ")
-        product = inventory.search_product_by_name(search_product)
-        if product is not None:
-            product.show_info()
-        else:
-            print("Product not found")
-        return True
-    elif search_selection == "2":
-        print("Search by category selected.")
-        search_product = input("Please type here to search your product: ")
-        category_list = inventory.search_product_by_category(search_product)
-        if not category_list: 
-            print("Category not found")
-        else: 
-            for product in category_list:
+        search_selection = input ("Please choose an option: ")
+        if search_selection == "1":
+            print("Search by name selected.")
+            search_product = input("Please type here to search your product: ")
+            product = inventory.search_product_by_name(search_product)
+            if product is not None:
                 product.show_info()
-        return True
-    elif search_selection == "3":
-        return False
-    else:
-        print("Please choose a correct option: 1, 2 or 3.") 
-        return True   
+            else:
+                print("Product not found")
+            continue
+        elif search_selection == "2":
+            print("Search by category selected.")
+            search_product = input("Please type here to search your product: ")
+            category_list = inventory.search_product_by_category(search_product)
+            if not category_list: 
+                print("Category not found")
+            else: 
+                for product in category_list:
+                    product.show_info()
+            continue
+        elif search_selection == "3":
+            return
+        else:
+            print("Please choose a correct option: 1, 2 or 3.") 
+            continue   
 
-def update_product_option():
+def update_product_option(inventory):
+    print("You have selected -Update product-")
     name = input("Please type the product name you want to update: ")
     product = inventory.search_product_by_name(name)
-    if product is None:
-        print("Product not found.")
-    else:
+    if product is not None:
+        print("Product before changes:")
+        product.show_info()
         price = input("Please type the new price amount: ")
         try:
             price = float(price)
         except ValueError:
             print("Price must be a number.")
-        print("Product before changes:")
-        product.show_info()
+            return
         try:
             product.update_price(price)
             print("Product after changes:")
             product.show_info()
         except ValueError as error:
             print(error)
+    else:
+        print("Product not found.")
+        return
 
-def delete_product_option():
-    name = input("Please type the name of the product to be removed: ")
-    product = inventory.search_product_by_name(name)
-    if product is None:
-        print ("Product not found.")
-        return True
-    product.show_info()
+def delete_product_option(inventory):
+    print("You have selected -Delete Product-")    
     while True:
-        confirm_selection = input("""Are you sure you want to delete the follwing product? Please choose an option:
+        name = input("Please type the name of the product to be removed: ")
+        product = inventory.search_product_by_name(name)
+        if product is None:
+            print ("Product not found.")
+            continue
+        product.show_info()
+        while True:
+            confirm_selection = input("""Are you sure you want to delete the follwing product? Please choose an option:
 1. Confirm and delete product
 2. Search again
 3. Return to the main menu""")
-        if confirm_selection == "1":
-            inventory.delete_product(product)
-            return False
-        elif confirm_selection == "2":
-            return True
-        elif confirm_selection == "3":
-            return False
-        else:
-            print("Please choose a correct option from 1 to 3: ")
+            if confirm_selection == "1":
+                inventory.delete_product(product)
+                return
+            elif confirm_selection == "2":
+                break
+            elif confirm_selection == "3":
+                return
+            else:
+                print("Please choose a correct option from 1 to 3: ")
 
-def low_stock_option():
+def low_stock_option(inventory):
+    print("You have selected -View low-stock products-")
     stock = input("Please choose the amount of stock: ")
     try:
         stock = int(stock)
@@ -246,45 +137,37 @@ def low_stock_option():
         print("Stock must be an integer number.")
 
 
+def main():  
+    inventory = Inventory()
+    inventory.load_products()
+    program_running = True
+    while program_running:
+        print("""========== INVENTORY SYSTEM ==========
+    1. Add product
+    2. View products
+    3. Search product
+    4. Update product
+    5. Delete product
+    6. View low-stock products
+    7. Save
+    8. Exit""")
+        option = input("Welcome.\nPlease choose an option: ")
+        if option == "1":
+            add_products_option(inventory)
+        elif option == "2":
+            show_products_option(inventory)
+        elif option == "3":
+            search_product_option(inventory)
+        elif option == "4":
+            update_product_option(inventory)
+        elif option == "5":
+            delete_product_option(inventory)
+        elif option == "6":
+            low_stock_option(inventory)
+        elif option == "7":
+            inventory.save_products()
+        elif option == "8":
+            program_running = False
 
-inventory = Inventory()
-inventory.load_products()
-program_running = True
-while program_running:
-    print("""========== INVENTORY SYSTEM ==========
-1. Add product
-2. View products
-3. Search product
-4. Update product
-5. Delete product
-6. View low-stock products
-7. Save
-8. Exit""")
-    option = input("Welcome.\nPlease choose an option: ")
-    if option == "1":
-        print("You have selected -Add product-")
-        add_product_running = True
-        while add_product_running:
-            add_product_running = add_products_option()
-    elif option == "2":
-        print("You have selected -View product-")
-        inventory.show_products()
-    elif option == "3":
-        print("You have selected -Search product-")
-        search_product_running = True
-        while search_product_running:
-            search_product_running = search_product_option()
-    elif option == "4":
-        print("You have selected -Update product-")
-        update_product_option()
-    elif option == "5":
-        delete_product_running = True
-        while delete_product_running:
-            delete_product_running = delete_product_option()
-    elif option == "6":
-        print("You have selected -View low-stock products-")
-        low_stock_option()
-    elif option == "7":
-        inventory.save_products()
-    elif option == "8":
-        program_running = False
+if __name__ == "__main__":
+    main()
